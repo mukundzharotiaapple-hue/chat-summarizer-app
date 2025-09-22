@@ -1,15 +1,11 @@
 const fetch = require('node-fetch');
 
 exports.handler = async function (event) {
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // Get the data from the frontend
   const { prompt, imageData } = JSON.parse(event.body);
-  
-  // Get the secret API key from Netlify's environment variables
   const apiKey = process.env.GEMINI_API_KEY;
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
@@ -33,14 +29,13 @@ exports.handler = async function (event) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-
+    
     const responseBody = await response.text();
     if (!response.ok) {
         console.error("API Error Response:", responseBody);
         return { statusCode: response.status, body: `API Error: ${responseBody}` };
     }
 
-    // Forward the successful response from Gemini back to the frontend
     return {
       statusCode: 200,
       body: responseBody,
